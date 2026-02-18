@@ -19,12 +19,13 @@ model User {
   workflows Workflow[]
 }
 
-model Workflow {
+model Workflow {  
   id          String        @id @default(cuid())
   name        String
   description String?
   nodes       Json          // Store React Flow nodes as JSON
   edges       Json          // Store React Flow edges as JSON
+  nodeData    Json?         // Store internal node data (values, text, etc.)
   userId      String
   user        User          @relation(fields: [userId], references: [id], onDelete: Cascade)
   createdAt   DateTime      @default(now())

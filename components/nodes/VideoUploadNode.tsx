@@ -41,8 +41,20 @@ export const VideoUploadNode = memo(({ id, data }: NodeProps) => {
   const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file && file.type.startsWith("video/")) {
-      const url = URL.createObjectURL(file);
-      updateNodeData(id, { videoUrl: url, output: url });
+      // Limit to 10MB for Base64 storage to avoid database performance issues
+      if (file.size > 10 * 1024 * 1024) {
+        alert(
+          "Video file too large (max 10MB for persistence). Please use a smaller file.",
+        );
+        return;
+      }
+
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        const base64String = reader.result as string;
+        updateNodeData(id, { videoUrl: base64String, output: base64String });
+      };
+      reader.readAsDataURL(file);
     }
   };
 

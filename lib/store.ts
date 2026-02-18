@@ -41,13 +41,20 @@ export interface WorkflowRun {
 }
 
 interface WorkflowState {
+  id: string | null;
+  name: string;
   nodes: Node[];
   edges: Edge[];
   nodeData: Record<string, NodeData>;
   nodeHandles: Record<string, { inputs: HandleInfo[]; outputs: HandleInfo[] }>;
   workflowHistory: WorkflowRun[];
+  isLoading: boolean;
+  setId: (id: string | null) => void;
+  setName: (name: string) => void;
   setNodes: (nodes: Node[]) => void;
   setEdges: (edges: Edge[]) => void;
+  setNodeData: (data: Record<string, NodeData>) => void;
+  setIsLoading: (isLoading: boolean) => void;
   onNodesChange: (changes: NodeChange[]) => void;
   onEdgesChange: (changes: EdgeChange[]) => void;
   onConnect: (connection: Connection) => void;
@@ -74,14 +81,22 @@ interface WorkflowState {
 }
 
 export const useWorkflowStore = create<WorkflowState>((set, get) => ({
+  id: null,
+  name: "Untitled Workflow",
   nodes: [],
   edges: [],
   nodeData: {},
   nodeHandles: {},
   workflowHistory: [],
+  isLoading: true,
+
+  setId: (id) => set({ id }),
+  setName: (name) => set({ name }),
 
   setNodes: (nodes) => set({ nodes }),
   setEdges: (edges) => set({ edges }),
+  setNodeData: (nodeData) => set({ nodeData }),
+  setIsLoading: (isLoading) => set({ isLoading }),
 
   onNodesChange: (changes) => {
     set({
@@ -162,7 +177,7 @@ export const useWorkflowStore = create<WorkflowState>((set, get) => ({
     const node = nodes.find((n) => n.id === nodeId);
     if (!node) return;
 
-    const newNodeId = `node_${Date.now()}`;
+    const newNodeId = `node_${Date.now()}_${Math.random().toString(36).substring(2, 9)}`;
     const newNode: Node = {
       ...node,
       id: newNodeId,

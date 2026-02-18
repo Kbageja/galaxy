@@ -41,8 +41,17 @@ export const ImageUploadNode = memo(({ id, data }: NodeProps) => {
   const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file && file.type.startsWith("image/")) {
-      const url = URL.createObjectURL(file);
-      updateNodeData(id, { imageUrl: url, output: url });
+      // Limit to 10MB for Base64 storage
+      if (file.size > 10 * 1024 * 1024) {
+        alert("Image file too large (max 10MB). Please use a smaller file.");
+        return;
+      }
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        const base64String = reader.result as string;
+        updateNodeData(id, { imageUrl: base64String, output: base64String });
+      };
+      reader.readAsDataURL(file);
     }
   };
 
